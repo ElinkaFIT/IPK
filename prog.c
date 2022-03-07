@@ -23,7 +23,7 @@ void get_hostname(){
     char hostname[MAX_SIZE];
     fgets(hostname, MAX_SIZE, fh);
     
-    printf("Hostname: %s\n", hostname);
+    printf("%s\n", hostname);
 
     fclose(fh);
 }
@@ -31,10 +31,16 @@ void get_hostname(){
 // returns information about CPU
 void get_cpu(){
     FILE *fc = fopen("/proc/cpuinfo", "r");
+    char trash[MAX_SIZE] = {0};
     char cpuname[MAX_SIZE] = {0};
+
+    for(int i = 0; i < 4; i++){
+        fgets(trash, MAX_SIZE, fc);
+    }
+    fscanf(fc, "%s %s %s  ", trash, trash, trash);
     fgets(cpuname, MAX_SIZE, fc);
     
-    printf("CPU: %s\n", cpuname);
+    printf("%s\n", cpuname);
 
     fclose(fc);
 }
@@ -43,41 +49,37 @@ void get_cpu(){
 void get_load(){
 
     FILE *fl;
-    char str[4];
+    char trash[4];
     int prev_cpu[10];
     int curr_cpu[10];
 
     // pull previous data from /proc/stat
     fl = fopen("/proc/stat", "r");
-    fscanf(fl, "%s", str);
+    fscanf(fl, "%s", trash);
     for(int i = 0; i < 10; i++){
         fscanf(fl, "%d", &prev_cpu[i]);
-        printf("prev: %d\n", prev_cpu[i]);
     }
     fclose(fl);
 
-    printf("prev0: %d\n", prev_cpu[0]);
     sleep(1);
 
     // pull current data from /proc/stat
     fl = fopen("/proc/stat", "r");
-    fscanf(fl, "%s", str);
+    fscanf(fl, "%s", trash);
     for(int i = 0; i < 10; i++){
         fscanf(fl, "%d", &curr_cpu[i]);
-        printf("prev: %d\n", curr_cpu[i]);
     }
     fclose(fl);
-    printf("prev0: %d\n", curr_cpu[0]);
 
     // count cpu percentage
-    int prev_a = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[3]; 
-    int curr_a = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];   
+    int prev_a = prev_cpu[0] + prev_cpu[1] + prev_cpu[2]; 
+    int curr_a = curr_cpu[0] + curr_cpu[1] + curr_cpu[2];   
 
     int prev_b = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[3]; 
     int curr_b = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];      
 
-    int cpu_perc = (curr_a - prev_a) / (curr_b - prev_b);
-    printf("The current CPU utilization is : %d\n", cpu_perc);
+    float cpu_perc = (curr_a - prev_a) / (curr_b - prev_b) * 100;
+    printf("CPU: %f\n", cpu_perc);
 
     // old version
     // int prev_idle = prev_cpu[3] + prev_cpu[4];
