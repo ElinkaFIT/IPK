@@ -7,7 +7,7 @@ Naslouchá na zadaném portu a dle URL vrací požadované informace.
 
 Klimecká Alena - xklime47
 
-## Použití
+## Spuštění
 
 Po stažení souborů do vašeho počítače použijte následující příkazy v terminálu. 
 Namísto '12345' můžete zadat vlastní číslo portu. 
@@ -16,11 +16,16 @@ Namísto '12345' můžete zadat vlastní číslo portu.
 $ make
 $ ./hinfosvc 12345 &
 ```
+
+## Použití
+
 Servername: jméno serveru (např. localhost)
 
 12345 můžeme opět nahratit daným číslem vlastního portu.
 
 ### Získání doménového jména
+
+Vrátí síťové jméno počítače včetně domény
 
 ```
 $ GET http://servername:12345/hostname
@@ -32,6 +37,8 @@ $ curl http://servername:12345/hostname
 
 ### Získání informací o CPU
 
+Vrátí informace o procesoru
+
 ```
 $ GET http://servername:12345/cpu-name
 ```
@@ -41,6 +48,8 @@ $ curl http://servername:12345/cpu-name
 ```
 
 ### Aktuální zátěž
+
+Vrátí aktuální zátěž 
 
 ```
 $ GET http://servername:12345/load
