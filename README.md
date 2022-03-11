@@ -18,7 +18,8 @@ $ ./hinfosvc 12345 &
 
 ## Získání doménového jména
 
-Servername: jméno serveru (např. localhost
+Servername: jméno serveru (např. localhost)
+
 12345 můžeme opět nahratit daným číslem vlastního portu.
 
 ```
