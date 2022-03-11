@@ -15,12 +15,11 @@ Namísto '12345' můžete zadat vlastní číslo portu.
 $ make
 $ ./hinfosvc 12345 &
 ```
-
-## Získání doménového jména
-
 Servername: jméno serveru (např. localhost)
 
 12345 můžeme opět nahratit daným číslem vlastního portu.
+
+## Získání doménového jména
 
 ```
 $ GET http://servername:12345/hostname
