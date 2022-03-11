@@ -2,15 +2,26 @@
 #include <stdio.h>
 #include <string.h>
 
+void get_cpu(char *cpu);
+
 int main ()
 {
-    char str[] ="GET http://servername:12345/cpu-name";
+    char *text;
+    get_cpu(text);
+    printf("%s\n", text);
 
-    char *get = strtok (str, " /");
-    char *trash = strtok (NULL, " /");
-    trash = strtok (NULL, " /");
-    char *command = strtok (NULL, " /");
-    printf ("%s %s %s\n", get, trash, command);
   
     return 0;
+}
+
+void get_cpu(char *cpu){
+    FILE *fc = fopen("/proc/cpuinfo", "r");
+    char trash[1024];
+
+    for(int i = 0; i < 4; i++){
+        fgets(trash, 1024, fc);
+    }
+    fscanf(fc, "%s %s %s  ", trash, trash, trash);
+    fgets(cpu, 1024, fc);
+    fclose(fc);
 }

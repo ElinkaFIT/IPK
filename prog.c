@@ -9,9 +9,9 @@
 
 #define MAX_SIZE 1024
 
-void get_hostname(char *buffer);
-void get_cpu(char *cpu);
-void get_load();
+void get_hostname(char buffer[]);
+void get_cpu(char cpu[]);
+int get_load();
 
 int main(int argc, char *argv[])
 {
@@ -64,11 +64,10 @@ int main(int argc, char *argv[])
     }
 
     // read and write
-    int adr_size = sizeof(server_address);
     struct sockaddr_in new_address;
-    char buffer[MAX_SIZE];
 
     for(;;){
+        char buffer[MAX_SIZE] = {0};
         int new_socket = accept(server_socket, (struct sockaddr*)&new_address, (socklen_t *)&new_address);
         if(new_socket > 0){
             
@@ -78,43 +77,39 @@ int main(int argc, char *argv[])
             }
             // get data
             char *get = strtok (buffer, " /");
-            char *trash = strtok (NULL, " /");
-            trash = strtok (NULL, " /");
             char *command = strtok (NULL, " /");
 
             if (strcmp(get, "GET") != 0){
-                perror("ERROR: 400");
+                perror("ERROR: Wrong command");
                 exit(EXIT_FAILURE);
             }
 
             // hostname
-            if(strcmp(command, "hostname")){
-                char reply[MAX_SIZE];
-                char *text;
-                get_hostname(text);
-                sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %li\r\n\r\n%s", strlen(text), text);
-                send(new_socket, reply, sizeof(reply), 0);
+            if(strcmp(command, "hostname") == 0){
+                char host_reply[MAX_SIZE] = {0};
+                char host_text[512] = {0};
+                get_hostname(host_text);
+                sprintf(host_reply, "HTTP/1.1 200 OK\r\nContent-Type: text/plain;\r\n\r\n%s", host_text);
+                send(new_socket, host_reply, strlen(host_reply), 0);
             }
             // cpu-name
-            if(strcmp(command, "cpu-name")){
-                char reply[MAX_SIZE];
-                char *text;
-                get_cpu(text);
-                sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %li\r\n\r\n%s", strlen(text), text);
-                send(new_socket, reply, sizeof(reply), 0);
+            else if(strcmp(command, "cpu-name") == 0){
+                char cpu_reply[MAX_SIZE] = {0};
+                char cpu_text[512] = {0};
+                get_cpu(cpu_text);
+                sprintf(cpu_reply, "HTTP/1.1 200 OK\r\nContent-Type: text/plain;\r\n\r\n%s", cpu_text);
+                send(new_socket, cpu_reply, strlen(cpu_reply), 0);
             }
-            // // load
-            // else if(strcmp(command, "load")){
-            //     perror("ERROR: 400");
-            //     exit(EXIT_FAILURE);
-            // }
-            // wrong command
-            else{
-                perror("ERROR: 400");
-                exit(EXIT_FAILURE);
+            // load
+            else if(strcmp(command, "load") == 0){
+                int load = get_load();  
+                char load_reply[MAX_SIZE] = {0};
+                char load_text[512] = {0};
+                sprintf(load_text, "%d", load);
+                sprintf(load_reply, "HTTP/1.1 200 OK\r\nContent-Type: text/plain;\r\n\r\n%s", load_text);
+                send(new_socket, load_reply, strlen(load_reply), 0);
             }
-
-        }
+        }   
         close(new_socket);
     }
     close(server_socket);
@@ -122,14 +117,14 @@ int main(int argc, char *argv[])
 }
 
 // get hostname including domain
-void get_hostname(char *hostname){
+void get_hostname(char hostname[]){
     FILE *fh = fopen("/proc/sys/kernel/hostname", "r");
     fgets(hostname, MAX_SIZE, fh);
     fclose(fh);
 }
 
 // returns information about CPU
-void get_cpu(char *cpu){
+void get_cpu(char cpu[]){
     FILE *fc = fopen("/proc/cpuinfo", "r");
     char trash[MAX_SIZE] = {0};
     char cpuname[MAX_SIZE] = {0};
@@ -138,13 +133,12 @@ void get_cpu(char *cpu){
         fgets(trash, MAX_SIZE, fc);
     }
     fscanf(fc, "%s %s %s  ", trash, trash, trash);
-    fgets(cpuname, MAX_SIZE, fc);
-    cpu = cpuname;
+    fgets(cpu, MAX_SIZE, fc);
     fclose(fc);
 }
 
 // returns current load
-void get_load(){
+int get_load(){
 
     FILE *fl;
     char trash[4];
@@ -169,27 +163,27 @@ void get_load(){
     }
     fclose(fl);
 
-    // count cpu percentage
-    int prev_a = prev_cpu[0] + prev_cpu[1] + prev_cpu[2]; 
-    int curr_a = curr_cpu[0] + curr_cpu[1] + curr_cpu[2];   
+    // // count cpu percentage old
+    // int prev_a = prev_cpu[0] + prev_cpu[1] + prev_cpu[2]; 
+    // int curr_a = curr_cpu[0] + curr_cpu[1] + curr_cpu[2];   
 
-    int prev_b = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[3]; 
-    int curr_b = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];      
+    // int prev_b = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[3]; 
+    // int curr_b = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];      
 
-    float cpu_perc = (curr_a - prev_a) / (curr_b - prev_b) * 100;
+    // int cpu_perc = (curr_a - prev_a) / (curr_b - prev_b) * 100;
 
-    // old version
-    // int prev_idle = prev_cpu[3] + prev_cpu[4];
-    // int idle = curr_cpu[3] + curr_cpu[4];
+    // return cpu_perc;
 
-    // int prev_non_idle = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[5] + prev_cpu[6] + prev_cpu[7];
-    // int non_idle = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[5] + curr_cpu[6] + curr_cpu[7]; 
+    int prev_idle = prev_cpu[3] + prev_cpu[4];
+    int idle = curr_cpu[3] + curr_cpu[4];
 
-    // int total = idle + non_idle - prev_idle + prev_non_idle;
-    // int idled = idle - prev_idle;
+    int prev_non_idle = prev_cpu[0] + prev_cpu[1] + prev_cpu[2] + prev_cpu[5] + prev_cpu[6] + prev_cpu[7];
+    int non_idle = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[5] + curr_cpu[6] + curr_cpu[7]; 
 
-    // int cpu_percentage = (total - idled)/total; 
+    int total = idle + non_idle - prev_idle + prev_non_idle;
+    int idled = idle - prev_idle;
 
-    // printf("LOAD: %d\n", cpu_percentage);
+    int cpu_percentage = (total - idled)/total * 100; 
+    return cpu_percentage;
 
 }
