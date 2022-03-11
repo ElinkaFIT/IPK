@@ -9,8 +9,8 @@
 
 #define MAX_SIZE 1024
 
-void get_hostname(char buffer[]);
-void get_cpu();
+void get_hostname(char *buffer);
+void get_cpu(char *cpu);
 void get_load();
 
 int main(int argc, char *argv[])
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         perror("ERROR: Missing argument");
         exit(EXIT_FAILURE);
     }
-    int port_number = atoi(argv[1]); // muj port zatim
+    int port_number = atoi(argv[1]);
 
     // server address
     // char pole[MAX_SIZE];
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
     // create socket
     int server_socket;
-    if ((server_socket = socket(AF_INET, SOCK_DGRAM, 0)) <= 0){
+    if ((server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) <= 0){
         perror("ERROR: socket");
         exit(EXIT_FAILURE);
     }
@@ -63,29 +63,73 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    // accept
+    // read and write
     int adr_size = sizeof(server_address);
     struct sockaddr_in new_address;
-    char buffer[MAX_SIZE] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain;\r\n\r\n";
-    while(1){
+    char buffer[MAX_SIZE];
+
+    for(;;){
         int new_socket = accept(server_socket, (struct sockaddr*)&new_address, (socklen_t *)&new_address);
         if(new_socket > 0){
-            // tady budes cist a vypisovat
-        }
-    }
+            
+            if (recv(new_socket, buffer, MAX_SIZE, 0) <= 0){
+                close(new_socket);
+                break;
+            }
+            // get data
+            char *get = strtok (buffer, " /");
+            char *trash = strtok (NULL, " /");
+            trash = strtok (NULL, " /");
+            char *command = strtok (NULL, " /");
 
+            if (strcmp(get, "GET") != 0){
+                perror("ERROR: 400");
+                exit(EXIT_FAILURE);
+            }
+
+            // hostname
+            if(strcmp(command, "hostname")){
+                char reply[MAX_SIZE];
+                char *text;
+                get_hostname(text);
+                sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %li\r\n\r\n%s", strlen(text), text);
+                send(new_socket, reply, sizeof(reply), 0);
+            }
+            // cpu-name
+            if(strcmp(command, "cpu-name")){
+                char reply[MAX_SIZE];
+                char *text;
+                get_cpu(text);
+                sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %li\r\n\r\n%s", strlen(text), text);
+                send(new_socket, reply, sizeof(reply), 0);
+            }
+            // // load
+            // else if(strcmp(command, "load")){
+            //     perror("ERROR: 400");
+            //     exit(EXIT_FAILURE);
+            // }
+            // wrong command
+            else{
+                perror("ERROR: 400");
+                exit(EXIT_FAILURE);
+            }
+
+        }
+        close(new_socket);
+    }
     close(server_socket);
+
 }
 
 // get hostname including domain
-void get_hostname(char hostname[]){
+void get_hostname(char *hostname){
     FILE *fh = fopen("/proc/sys/kernel/hostname", "r");
     fgets(hostname, MAX_SIZE, fh);
     fclose(fh);
 }
 
 // returns information about CPU
-void get_cpu(){
+void get_cpu(char *cpu){
     FILE *fc = fopen("/proc/cpuinfo", "r");
     char trash[MAX_SIZE] = {0};
     char cpuname[MAX_SIZE] = {0};
@@ -95,9 +139,7 @@ void get_cpu(){
     }
     fscanf(fc, "%s %s %s  ", trash, trash, trash);
     fgets(cpuname, MAX_SIZE, fc);
-    
-    printf("%s\n", cpuname);
-
+    cpu = cpuname;
     fclose(fc);
 }
 
@@ -135,7 +177,6 @@ void get_load(){
     int curr_b = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];      
 
     float cpu_perc = (curr_a - prev_a) / (curr_b - prev_b) * 100;
-    printf("CPU: %f %%\n", cpu_perc);
 
     // old version
     // int prev_idle = prev_cpu[3] + prev_cpu[4];
