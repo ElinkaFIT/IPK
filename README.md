@@ -6,7 +6,7 @@ Server komunikující prostřednictvím HTTP protokolu.
 
 Klimecká Alena - xklime47
 
-### Použití
+## Použití
 
 Po stažení souborů do vašeho počítače použijte následující příkazy v terminálu. 
 Namísto '12345' můžete zadat vlastní číslo portu. 
