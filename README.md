@@ -16,9 +16,7 @@ $ make
 $ ./hinfosvc 12345 &
 ```
 
-## Hostname
-
-Příkaz pro získání doménového jména
+## Získání doménového jména
 
 ```
 $ GET http://servername:12345/hostname
@@ -26,6 +24,26 @@ $ GET http://servername:12345/hostname
 nebo
 ```
 $ curl http://servername:12345/hostname
+```
+
+## Získání informací o CPU
+
+```
+$ GET http://servername:12345/cpu-name
+```
+nebo
+```
+$ curl http://servername:12345/cpu-name
+```
+
+## Aktuální zátěž
+
+```
+$ GET http://servername:12345/load
+```
+nebo
+```
+$ curl http://servername:12345/load
 ```
 
 ## Deployment
