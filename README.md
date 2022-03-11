@@ -1,37 +1,31 @@
-# IPK project 1
+# IPK projekt 1
 
-A short description about the project and/or client.
+Server komunikující prostřednictvím HTTP protokolu.
 
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### Prerequisites
+### Usage
 
-The things you need before installing the software.
-
-* You need this
-* And you need this
-* Oh, and don't forget this
-
-### Installation
-
-A step by step guide that will tell you how to get the development environment up and running.
+Po stažení souborů do vašeho počítače použijte následující příkazy v terminálu. 
+Namísto '12345' můžete zadat vlastní číslo portu. 
 
 ```
-$ First step
-$ Another step
-$ Final step
+$ make
+$ ./hinfosvc 12345 &
 ```
 
-## Usage
+## Hostname
 
-A few examples of useful commands and/or tasks.
+Příkaz pro získání doménového jména
 
 ```
-$ First example
-$ Second example
-$ And keep this in mind
+$ GET http://servername:12345/hostname
+```
+nebo
+```
+$ curl http://servername:12345/hostname
 ```
 
 ## Deployment
