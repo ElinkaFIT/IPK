@@ -2,7 +2,11 @@
 
 Server komunikující prostřednictvím HTTP protokolu.
 
-### Usage
+## Autor
+
+Klimecká Alena - xklime47
+
+### Použití
 
 Po stažení souborů do vašeho počítače použijte následující příkazy v terminálu. 
 Namísto '12345' můžete zadat vlastní číslo portu. 
@@ -45,26 +49,5 @@ nebo
 $ curl http://servername:12345/load
 ```
 
-## Deployment
-
-Additional notes on how to deploy this on a live or release system. Explaining the most important branches, what pipelines they trigger and how to update the database (if anything special).
-
-### Server
-
-* Live:
-* Release:
-* Development:
-
-### Branches
-
-* Master:
-* Feature:
-* Bugfix:
-* etc...
-
-## Additional Documentation and Acknowledgments
-
-* Project folder on server:
-* Confluence link:
-* Asana board:
-* etc...
+## Autor
+Klimecká Alena 
