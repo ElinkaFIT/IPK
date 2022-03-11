@@ -1,6 +1,7 @@
 # IPK projekt 1
 
 Server komunikující prostřednictvím HTTP protokolu poskytující informace o systému.
+Nasloucá na zdaném portu a dle url vrací požadované informace.
 
 ## Autor
 
