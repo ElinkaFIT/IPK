@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+// #include <strings.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -6,25 +9,78 @@
 
 #define MAX_SIZE 1024
 
-void get_hostname();
+void get_hostname(char buffer[]);
 void get_cpu();
 void get_load();
 
-int main()
+int main(int argc, char *argv[])
 {
-    get_hostname();
-    get_cpu();
-    get_load();
+    if (argc < 2){
+        perror("ERROR: Missing argument");
+        exit(EXIT_FAILURE);
+    }
+    int port_number = atoi(argv[1]); // muj port zatim
+
+    // server address
+    // char pole[MAX_SIZE];
+    // get_hostname(pole);
+    
+    // char *server_hostname = pole;
+    // struct hostent *server;
+
+    // if ((server = gethostbyname(server_hostname)) == NULL){
+    //     perror("ERROR: no host");
+    //     exit(EXIT_FAILURE);
+    // }
+
+    // create socket
+    int server_socket;
+    if ((server_socket = socket(AF_INET, SOCK_DGRAM, 0)) <= 0){
+        perror("ERROR: socket");
+        exit(EXIT_FAILURE);
+    }
+
+    int optval = 1;
+    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, (const void*)&optval, sizeof(int));
+
+    // set server address
+    struct sockaddr_in server_address;
+
+    bzero((char *) &server_address, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = INADDR_ANY;
+    server_address.sin_port = htons((unsigned short)port_number);
+
+    // bind
+    if (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0){
+        perror("ERROR: bind");
+        exit(EXIT_FAILURE);
+    }
+
+    // listen
+    if (listen(server_socket, 5) < 0){
+        perror("ERROR: listen");
+        exit(EXIT_FAILURE);
+    }
+
+    // accept
+    int adr_size = sizeof(server_address);
+    struct sockaddr_in new_address;
+    char buffer[MAX_SIZE] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain;\r\n\r\n";
+    while(1){
+        int new_socket = accept(server_socket, (struct sockaddr*)&new_address, (socklen_t *)&new_address);
+        if(new_socket > 0){
+            // tady budes cist a vypisovat
+        }
+    }
+
+    close(server_socket);
 }
 
 // get hostname including domain
-void get_hostname(){
+void get_hostname(char hostname[]){
     FILE *fh = fopen("/proc/sys/kernel/hostname", "r");
-    char hostname[MAX_SIZE];
     fgets(hostname, MAX_SIZE, fh);
-    
-    printf("%s\n", hostname);
-
     fclose(fh);
 }
 
@@ -79,7 +135,7 @@ void get_load(){
     int curr_b = curr_cpu[0] + curr_cpu[1] + curr_cpu[2] + curr_cpu[3];      
 
     float cpu_perc = (curr_a - prev_a) / (curr_b - prev_b) * 100;
-    printf("CPU: %f\n", cpu_perc);
+    printf("CPU: %f %%\n", cpu_perc);
 
     // old version
     // int prev_idle = prev_cpu[3] + prev_cpu[4];
