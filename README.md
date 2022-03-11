@@ -1,6 +1,6 @@
 # IPK projekt 1
 
-Server komunikující prostřednictvím HTTP protokolu.
+Server komunikující prostřednictvím HTTP protokolu poskytující informace o systému.
 
 ## Autor
 
@@ -19,7 +19,7 @@ Servername: jméno serveru (např. localhost)
 
 12345 můžeme opět nahratit daným číslem vlastního portu.
 
-## Získání doménového jména
+### Získání doménového jména
 
 ```
 $ GET http://servername:12345/hostname
@@ -29,7 +29,7 @@ nebo
 $ curl http://servername:12345/hostname
 ```
 
-## Získání informací o CPU
+### Získání informací o CPU
 
 ```
 $ GET http://servername:12345/cpu-name
@@ -39,7 +39,7 @@ nebo
 $ curl http://servername:12345/cpu-name
 ```
 
-## Aktuální zátěž
+### Aktuální zátěž
 
 ```
 $ GET http://servername:12345/load
@@ -47,7 +47,4 @@ $ GET http://servername:12345/load
 nebo
 ```
 $ curl http://servername:12345/load
-```
-
-## Autor
-Klimecká Alena 
+``` 
